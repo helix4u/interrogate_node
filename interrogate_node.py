@@ -22,6 +22,7 @@ CAPTION_MODELS = Literal[
     "blip-base", "blip-large", "blip2-2.7b", "blip2-flan-t5-xl", "git-large-coco"
 ]
 
+ci = None
 
 @invocation(
     "clip_interrogator_node",
@@ -51,29 +52,39 @@ class CLIPInterrogatorInvocation(BaseInvocation):
     low_vram: bool = InputField(default=False, description="Low VRAM mode.")
 
     def invoke(self, context: InvocationContext) -> StringOutput:
+        global ci
+
+        if ci is None:
+            config = Config()
+            config.clip_model_name = self.clip_model
+            config.caption_model_name = self.caption_model
+            ci = Interrogator(config)
+
         # Get PIL image
         image = context.services.images.get_pil_image(self.image.image_name).convert(
             "RGB"
         )
 
-        # set clip and caption models
-        config = Config()
-        config.clip_model_name = self.clip_model
-        config.caption_model_name = self.caption_model
-
         # Low VRAM options
         if self.low_vram:
-            config.caption_offload = True
-            config.clip_offload = True
-            config.chunk_size = 1024
-            config.flavor_intermediate_count = 1024
+            ci.config.caption_offload = True
+            ci.config.clip_offload = True
+            ci.config.chunk_size = 1024
+            ci.config.flavor_intermediate_count = 1024
         else:
-            config.caption_offload = False if torch.cuda.is_available() else True
-            config.clip_offload = False if torch.cuda.is_available() else True
-            config.chunk_size = 2048
-            config.flavor_intermediate_count = 2048
+            ci.config.caption_offload = False if torch.cuda.is_available() else True
+            ci.config.clip_offload = False if torch.cuda.is_available() else True
+            ci.config.chunk_size = 2048
+            ci.config.flavor_intermediate_count = 2048
 
-        ci = Interrogator(config)
+        if self.clip_model != ci.config.clip_model_name:
+            ci.config.clip_model_name = self.clip_model
+            ci.load_clip_model()
+
+        if self.caption_model != ci.config.caption_model_name:
+            ci.config.caption_model_name = self.caption_model
+            ci.load_caption_model()
+
         if self.mode == "best":
             prompt = ci.interrogate(image, max_flavors=int(self.best_max_flavors))
         elif self.mode == "classic":
