@@ -3,9 +3,12 @@ A node for InvokeAI that interrogates an image with [clip-interrogator](https://
 
 # How to install:
 - Open a command prompt/terminal in the invokeAI nodes directory (choose 8. Open the developer console option from the invoke.bat)
-- Run `git clone https://github.com/helix4u/interrogate_node.git`
-- Run `pip install clip_interrogator` from within the invoke env
-- Have fun
+- Run the following steps
+```bash
+git clone https://github.com/helix4u/interrogate_node.git
+pip install clip-interrogator
+```
+Note: First use of a model will download the selected clip and caption models
 
 # Todo:
 - expose more things(?)
