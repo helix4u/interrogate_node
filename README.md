@@ -2,7 +2,7 @@
 A node for InvokeAI that interrogates an image with [clip-interrogator](https://github.com/pharmapsychotic/clip-interrogator) and returns a string.
 
 # How to install:
-- Open a command prompt/terminal in the invokeAI nodes directory (choose 8. Open the developer console option from the invoke.bat)
+- Open the developer console option from the invoke.bat
 - Run the following steps
 ```bash
 cd nodes
