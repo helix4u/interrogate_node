@@ -3,7 +3,7 @@ from typing import Literal
 import torch
 from clip_interrogator import Config, Interrogator
 
-from invokeai.app.invocations.baseinvocation import (
+from invokeai.invocation_api import (
     BaseInvocation,
     BaseInvocationOutput,
     InputField,
@@ -61,7 +61,7 @@ class CLIPInterrogatorInvocation(BaseInvocation):
             ci = Interrogator(config)
 
         # Get PIL image
-        image = context.services.images.get_pil_image(self.image.image_name).convert(
+        image = context.images.get_pil(self.image.image_name).convert(
             "RGB"
         )
 
