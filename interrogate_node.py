@@ -52,7 +52,7 @@ class CLIPInterrogatorInvocation(BaseInvocation):
     low_vram: bool = InputField(default=False, description="Low VRAM mode.")
 
     def invoke(self, context: InvocationContext) -> StringOutput:
-        global ci
+        global ci  # declare it up front
 
         if ci is None:
             config = Config()
@@ -61,9 +61,7 @@ class CLIPInterrogatorInvocation(BaseInvocation):
             ci = Interrogator(config)
 
         # Get PIL image
-        image = context.images.get_pil(self.image.image_name).convert(
-            "RGB"
-        )
+        image = context.images.get_pil(self.image.image_name).convert("RGB")
 
         # Low VRAM options
         if self.low_vram:
@@ -93,6 +91,12 @@ class CLIPInterrogatorInvocation(BaseInvocation):
             prompt = ci.interrogate_fast(image)
         elif self.mode == "negative":
             prompt = ci.interrogate_negative(image)
+
+        # Unload the model from memory
+        ci.clip_model = None
+        ci.blip_model = None
+        torch.cuda.empty_cache()
+        ci = None
 
         return StringOutput(value=prompt)
 
