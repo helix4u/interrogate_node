@@ -27,13 +27,13 @@ ci = None
     title="Image to CLIP Prompt",
     tags=["image", "text", "CLIP", "BLIP", "interrogate"],
     category="image",
-    version="1.0.1",
+    version="1.0.2",
 )
 class CLIPInterrogatorInvocation(BaseInvocation):
     """Generate a prompt from an image using clip_interrogator."""
 
     image: ImageField = InputField(
-        default=None, description="The image for generating a prompt"
+        description="The image for generating a prompt"
     )
     best_max_flavors: int = InputField(
         default=32, description="Max flavors for 'best' mode"
